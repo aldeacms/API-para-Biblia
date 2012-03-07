@@ -3,11 +3,11 @@
 * CONFIGURACION 
 ***********************************/
 
-var $dbhost = '';
-var $dbuser = '';
-var $dbpass = '';
-var $dbname = 'i';
-var $dbprefix = 'bible_';
-var $bible = 1; //rv60
+$dbhost = '';
+$dbuser = '';
+$dbpass = '';
+$dbname = '';
+$dbprefix = 'bible_';
+$bible = 1; //rv60
 
 ?>
