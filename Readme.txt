@@ -1,1 +1,0 @@
-Biblia Online por AldeaCMS
