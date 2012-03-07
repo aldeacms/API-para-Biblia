@@ -4,15 +4,25 @@ require('settings.bible.php');
 
 class Bible {
 
-	var $dbhost 	= $dbhost;
-	var $dbuser 	= $dbuser;
-	var $dbpass 	= $dbpass;
-	var $dbname 	= $dbname;
-	var $dbprefix 	= $dbprefix;
-	var $bible 		= $bible;
+	var $dbhost 	= null;
+	var $dbuser 	= null;
+	var $dbpass 	= null;
+	var $dbname 	= null;
+	var $dbprefix 	= null;
+	var $bible 		= null;
 	var $db 		= null;
 
 	function __construct() {
+
+		global $dbhost,  $dbuser, $dbpass, $dbname, $dbprefix, $bible;
+		$this->dbhost 	= $dbhost;
+		$this->dbuser 	= $dbuser;
+		$this->dbpass 	= $dbpass;
+		$this->dbname 	= $dbname;
+		$this->dbprefix = $dbprefix;
+		$this->bible 	= $bible;
+		$this->db 		= null;
+
 		$this->db = mysql_connect($this->dbhost, $this->dbuser, $this->dbpass);
 		mysql_select_db($this->dbname, $this->db);
 	}
