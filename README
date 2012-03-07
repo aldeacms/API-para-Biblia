@@ -1,1 +1,9 @@
-AFASF
+API para Biblia
+Es desarrollada por Daniel Aldea.
+daniel@aldeacms.com
+www.aldeacms.com
+
+La idea es crear una API pública que via get se puedan consultar libros, capituos y versículos de la Biblia.
+Inicialmente en la versión Reina Valera 1960, pero a futuro extendible.
+
+La API devolverá un json con el resultado.
