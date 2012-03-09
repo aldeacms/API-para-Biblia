@@ -1,0 +1,21 @@
+
+La URL se formara de la siguiente manera:
+
+1) 	api.php?key=codigo&format=json&fn=books
+	Trae todos los libros de la biblia con el total de capitulos que tienen
+
+2) 	api.php?key=codigo&format=json&fn=book&book=jn
+	trae informacion del libro
+
+3) 	api.php?key=codigo&format=json&fn=verse&book=sal&chapter=1
+	trae el texto de todo el capitulo
+
+4) 	api.php?key=codigo&format=json&fn=verse&book=jn&chapter=3&verse=16
+	trae el texto del versiculo solicitado
+
+5) 	api.php?key=codigo&format=json&fn=verse&book=efesios&chapter=2&versefrom=8&verseto=9
+	trae el texto de desde versefrom hasta verseto
+
+6) 	api.php?key=codigo&format=json&fn=check&verse=ef 2 8:9
+	checkea si la cita mencionada es valida y devuelve por separado las variables para consultar dicho texto biblico
+
