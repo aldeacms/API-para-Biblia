@@ -1,34 +1,58 @@
 <?php
+
 require('class.bible.php');
-
-
-if (isset($_POST['fn'])) {
-  $fn = $_POST['fn'];
-} elseif (isset($_GET['fn'])) {
-  $fn = $_GET['fn'];
-}
 
 $Bible = new Bible();
 
-switch ($fn) {
-  case 'getFullVerse':
-	$verse = $_POST['verse'];
-	$fullVerse = $Bible->getFullVerse($verse);
-	echo $fullVerse;
-	break;
-  case 'getVerseText':
-	$fullVerse = $_POST['fullVerse'];
-	$verseText = $Bible->getVerseText($fullVerse);
-	echo $verseText;
-	break;
-  case 'getBooks':
+// Variables GET
+$fn = $Bible->sanitize($_GET['fn']);
+$key = $Bible->sanitize($_GET['key']);
+$format = $Bible->sanitize($_GET['format']);
+$bible = $Bible->sanitize($_GET['bible']);
+$book = $Bible->sanitize($_GET['book']);
+$chapter = $Bible->sanitize($_GET['chapter']);
+$verse = $Bible->sanitize($_GET['verse']);
+$verseFrom = $Bible->sanitize($_GET['versefrom']);
+$verseTo = $Bible->sanitize($_GET['verseto']);
 
-	$xmlBooks = $Bible->getBooks();
-	header("content-type: text/xml");
-	echo $xmlBooks;
-	break;
-  default:
-	echo 'Error';
-	break;
+// Valid key?
+if(!$Bible->validKey($key) || $key==null){
+	$responseArray["status"]= "error";
+	$responseArray["error"] = "Key invalida";
+	$Bible->print_json($responseArray);
+	die();
+}
+
+// Valid function?
+if(!$Bible->validFunction($fn) || $fn==null){
+	$responseArray["status"]= "error";
+	$responseArray["error"] = "Funcion desconocida";
+	$Bible->print_json($responseArray);
+	die();
+}
+
+
+switch ($fn) {
+	case 'books': // All bible books
+		$responseArray = $Bible->getBooks();
+		$Bible->print_json($responseArray);
+		break;
+	case 'checkverse': // Valid verse?
+		$responseArray = $Bible->checkVerse($verse);
+		$Bible->print_json($responseArray);
+		break;
+	case 'getFullVerse':
+		$verse = $_POST['verse'];
+		$fullVerse = $Bible->getFullVerse($verse);
+		echo $fullVerse;
+		break;
+	case 'getVerseText':
+		$fullVerse = $_POST['fullVerse'];
+		$verseText = $Bible->getVerseText($fullVerse);
+		echo $verseText;
+		break;
+	default:
+		echo 'Error';
+		break;
 }
 ?>

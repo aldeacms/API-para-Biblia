@@ -4,24 +4,24 @@ require('settings.bible.php');
 
 class Bible {
 
-	var $dbhost 	= null;
-	var $dbuser 	= null;
-	var $dbpass 	= null;
-	var $dbname 	= null;
-	var $dbprefix 	= null;
-	var $bible 		= null;
-	var $db 		= null;
+	var $dbhost = null;
+	var $dbuser = null;
+	var $dbpass = null;
+	var $dbname = null;
+	var $dbprefix = null;
+	var $bible = null;
+	var $db = null;
 
 	function __construct() {
-
-		global $dbhost,  $dbuser, $dbpass, $dbname, $dbprefix, $bible;
-		$this->dbhost 	= $dbhost;
-		$this->dbuser 	= $dbuser;
-		$this->dbpass 	= $dbpass;
-		$this->dbname 	= $dbname;
+		global $dbhost, $dbuser, $dbpass, $dbname, $dbprefix, $bible;
+		
+		$this->dbhost = $dbhost;
+		$this->dbuser = $dbuser;
+		$this->dbpass = $dbpass;
+		$this->dbname = $dbname;
 		$this->dbprefix = $dbprefix;
-		$this->bible 	= $bible;
-		$this->db 		= null;
+		$this->bible = $bible;
+		$this->db = null;
 
 		$this->db = mysql_connect($this->dbhost, $this->dbuser, $this->dbpass);
 		mysql_select_db($this->dbname, $this->db);
@@ -118,8 +118,8 @@ class Bible {
 						$verse['text'] = str_replace('{\i', '', $verse['text']);
 						$verse['text'] = str_replace('}', '', $verse['text']);
 						$verse['text'] = str_replace('\par', '<br/>&nbsp;&nbsp;&nbsp;', $verse['text']);
-						$verse['text'] = str_replace('{\cf6', '',$verse['text']);								 
-						
+						$verse['text'] = str_replace('{\cf6', '', $verse['text']);
+
 						$result.="<strong>" . $verse['verse'] . "</strong> " . $verse['text'] . "<br/>";
 					}
 					return utf8_encode($result);
@@ -132,45 +132,80 @@ class Bible {
 		}
 	}
 
-	function validate() {
-		if (isset($_GET['book'])) {
-			return true;
-		} else {
-			return false;
-		}
+	function checkVerse($verseString){
+		$responseArray["status"]=true;
+		$responseArray["verse"]=$verseString;
+		return $responseArray;
 	}
-
-	function prepareQuery() {
-		$query = "";
-		if (isset($_GET['book'])) {
-			$query['book'] = $_GET['book'];
-		}
-		if (isset($_GET['chapter'])) {
-			$query['chapter'] = $_GET['chapter'];
-		}
-		if (isset($_GET['verses'])) {
-			$query['verses'] = $_GET['verses'];
-		}
-
-		return $query;
+	
+	function checkBook($bookString){
+		
+	}
+	
+	function checkBookChapter($bookString,$bookChapter){
+		
+	}
+	function checkBookVerse($bookString,$bookChapter,$bookVese){
+		
 	}
 
 	function getBooks() {
+		
+		$response = null;
 		$sql = "SELECT A.idBook id,A.name nombre, A.testament testamento, count(distinct(B.chapter)) capitulos FROM " . $this->dbprefix . "books A, " . $this->dbprefix . "verses B WHERE B.idBook = A.idBook GROUP BY A.idBook ORDER BY A.idBook ASC";
-		$rs = mysql_query($sql, $this->db) or die(mysql_error());
+		$rs = mysql_query($sql, $this->db);
+		
 
-		$xml="<?xml version=\"1.0\"?>";
-		$xml.="<books>";
-		while ($row = mysql_fetch_assoc($rs)) {
-			$xml.="<book>";
-			$xml.="<number>" . $row['id'] . "</number>";
-			$xml.="<name><![CDATA[" . $row['nombre'] . "]]></name>";
-			$xml.="<testament><![CDATA[" . $row['testamento'] . "]]></testament>";
-			$xml.="<chapters><![CDATA[" . $row['capitulos'] . "]]></chapters>";
-			$xml.="</book>";
+		if(count($rs)==0){
+			$response["status"]="error";
+			$response["error"]=mysql_error();
 		}
-		$xml.="</books>";
-		return utf8_encode($xml);
+		else{
+			$response["status"]="ok";
+			while ($row = mysql_fetch_assoc($rs)) {
+				$response["books"][]=array(
+					"number"=>$row['id'],
+					"name"=>$row['nombre'],
+					"testament"=>$row['testamento'],
+					"chapters"=>$row['capitulos']
+				);
+			}
+		}
+		
+		return $response;
+	}
+
+	function validKey($key){
+		$keys = Array("aldeacms", "ibef");
+		if (in_array($key, $keys)) {
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	function validFunction($fn){
+		$functions = Array("books", "book", "verse", "checkverse");
+		if (in_array($fn, $functions)) {
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	function sanitize($var) {
+		// todo: sanitize functions
+		return $var;
+	}
+
+	function print_json($array) {
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		header('Content-type: application/json');
+		$response = json_encode($array);
+		echo $response;
 	}
 
 }
