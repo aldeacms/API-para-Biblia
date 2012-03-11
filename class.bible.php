@@ -14,7 +14,7 @@ class Bible {
 
 	function __construct() {
 		global $dbhost, $dbuser, $dbpass, $dbname, $dbprefix, $bible;
-		
+
 		$this->dbhost = $dbhost;
 		$this->dbuser = $dbuser;
 		$this->dbpass = $dbpass;
@@ -132,69 +132,106 @@ class Bible {
 		}
 	}
 
-	function checkVerse($verseString){
-		$responseArray["status"]=true;
-		$responseArray["verse"]=$verseString;
+	function checkVerse($verseString) {
+		$verseString = utf8_decode($verseString);
+		$verseString = trim($verseString);
+		$pre = "";
+		// si parte con 1, 2 o 3, excepcion
+		if (substr($verseString, 0, 1) == 1 || substr($verseString, 0, 1) == 2 || substr($verseString, 0, 1) == 3) {
+			// si el segundo es espacio, lo eliminamos y agregamos al pre
+			if (substr($verseString, 1, 1) == " ") {
+				$pre = substr($verseString, 0, 2);
+				$verseString = substr($verseString, 2, strlen($verseString) - 1);
+			} else {
+				$pre = substr($verseString, 0, 1) . " ";
+				$verseString = substr($verseString, 1, strlen($verseString) - 1);
+			}
+		}
+
+		$verseArray = explode(' ', $verseString);
+		// si hay mas de 2 espacios no corresponde
+		if (count($verseArray) > 2) {
+			$responseArray["status"] = false;
+			$responseArray["error"] = "Cita mal formada";
+			$responseArray["verse"] = $pre . $verseString;
+		} else {
+			$bookString = $pre . $verseArray[0];
+			$explodeChapter = explode(':', $verseArray[1]);
+			// si hay mas de 2 punto y coma no corresponde
+			if (count($explodeChapter) > 2) {
+				$responseArray["status"] = false;
+				$responseArray["error"] = "Cita mal formada";
+				$responseArray["verse"] = $pre . $verseString;
+				$responseArray["book"] = $bookString;
+			} else {
+				$bookChapter = $explodeChapter[0];
+				$verses = $explodeChapter[1];
+				$responseArray["status"] = true;
+				$responseArray["verse"] = $verseString;
+				$responseArray["book"] = $bookString;
+				$responseArray["chapter"] = $bookChapter;
+				$responseArray["verses"] = $verses;
+			}
+		}
+
 		return $responseArray;
 	}
-	
-	function checkBook($bookString){
+
+	function checkBook($bookString) {
 		
 	}
-	
-	function checkBookChapter($bookString,$bookChapter){
+
+	function checkBookChapter($bookString, $bookChapter) {
 		
 	}
-	function checkBookVerse($bookString,$bookChapter,$bookVese){
+
+	function checkBookVerse($bookString, $bookChapter, $bookVese) {
 		
 	}
 
 	function getBooks() {
-		
+
 		$response = null;
 		$sql = "SELECT A.idBook id,A.name nombre, A.testament testamento, count(distinct(B.chapter)) capitulos FROM " . $this->dbprefix . "books A, " . $this->dbprefix . "verses B WHERE B.idBook = A.idBook GROUP BY A.idBook ORDER BY A.idBook ASC";
 		$rs = mysql_query($sql, $this->db);
-		
 
-		if(count($rs)==0){
-			$response["status"]="error";
-			$response["error"]=mysql_error();
-		}
-		else{
-			$response["status"]="ok";
+
+		if (count($rs) == 0) {
+			$response["status"] = "error";
+			$response["error"] = mysql_error();
+		} else {
+			$response["status"] = "ok";
 			while ($row = mysql_fetch_assoc($rs)) {
-				$response["books"][]=array(
-					"number"=>$row['id'],
-					"name"=>$row['nombre'],
-					"testament"=>$row['testamento'],
-					"chapters"=>$row['capitulos']
+				$response["books"][] = array(
+					"number" => $row['id'],
+					"name" => $row['nombre'],
+					"testament" => $row['testamento'],
+					"chapters" => $row['capitulos']
 				);
 			}
 		}
-		
+
 		return $response;
 	}
 
-	function validKey($key){
+	function validKey($key) {
 		$keys = Array("aldeacms", "ibef");
 		if (in_array($key, $keys)) {
 			return true;
-		}
-		else{
+		} else {
 			return false;
 		}
 	}
-	
-	function validFunction($fn){
+
+	function validFunction($fn) {
 		$functions = Array("books", "book", "verse", "checkverse");
 		if (in_array($fn, $functions)) {
 			return true;
-		}
-		else{
+		} else {
 			return false;
 		}
 	}
-	
+
 	function sanitize($var) {
 		// todo: sanitize functions
 		return $var;
