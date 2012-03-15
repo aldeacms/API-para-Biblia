@@ -1,5 +1,4 @@
 <?php
-
 require('class.bible.php');
 
 $Bible = new Bible();
@@ -16,43 +15,41 @@ $verseFrom = $Bible->sanitize($_GET['versefrom']);
 $verseTo = $Bible->sanitize($_GET['verseto']);
 
 // Valid key?
-if(!$Bible->validKey($key) || $key==null){
-	$responseArray["status"]= "error";
-	$responseArray["error"] = "Key invalida";
-	$Bible->print_json($responseArray);
-	die();
+if (!$Bible->validKey($key) || $key == null) {
+    $responseArray["status"] = "error";
+    $responseArray["error"] = "Key invalida";
+    $Bible->print_json($responseArray);
+    die();
 }
 
 // Valid function?
-if(!$Bible->validFunction($fn) || $fn==null){
-	$responseArray["status"]= "error";
-	$responseArray["error"] = "Funcion desconocida";
-	$Bible->print_json($responseArray);
-	die();
+if (!$Bible->validFunction($fn) || $fn == null) {
+    $responseArray["status"] = "error";
+    $responseArray["error"] = "Funcion desconocida";
+    $Bible->print_json($responseArray);
+    die();
 }
 
 
 switch ($fn) {
-	case 'books': // All bible books
-		$responseArray = $Bible->getBooks();
-		$Bible->print_json($responseArray);
-		break;
-	case 'checkverse': // Valid verse?
-		$responseArray = $Bible->checkVerse($verse);
-		$Bible->print_json($responseArray);
-		break;
-	case 'getFullVerse':
-		$verse = $_POST['verse'];
-		$fullVerse = $Bible->getFullVerse($verse);
-		echo $fullVerse;
-		break;
-	case 'getVerseText':
-		$fullVerse = $_POST['fullVerse'];
-		$verseText = $Bible->getVerseText($fullVerse);
-		echo $verseText;
-		break;
-	default:
-		echo 'Error';
-		break;
+    case 'books': // All bible books
+        $responseArray = $Bible->getBooks();
+        $Bible->print_json($responseArray);
+        break;
+    case 'checkverse': // Valid verse?
+        $responseArray = $Bible->checkVerse($verse);
+        $Bible->print_json($responseArray);
+        break;
+    case 'verse':
+        $response = $Bible->getVerse($verse);
+        $Bible->print_json($response);
+        break;
+    case 'getFullVerse':
+        $fullVerse = $Bible->getFullVerse($verse);
+        echo $fullVerse;
+        break;
+    default:
+        echo 'Error';
+        break;
 }
 ?>
