@@ -138,7 +138,7 @@ class Bible
 		if (count($explodeChapter) > 2) {
 		    $responseArray["status"] = false;
 		    $responseArray["error"] = "Cita mal formada";
-		    $responseArray["verse"] = $pre . $verseString;
+		    $responseArray["verse"] = $pre . $verse;
 		    return $responseArray;
 		} else {
 		    $bookChapter = trim($explodeChapter[0]);
@@ -147,7 +147,7 @@ class Bible
 			$responseArray["status"] = false;
 			$responseArray["error"] = "Capitulo invalido";
 			$responseArray["chapter"] = $bookChapter;
-			$responseArray["verse"] = $pre . $verseString;
+			$responseArray["verse"] = $pre . $verse;
 			return $responseArray;
 		    } else {
 			$verses = trim($explodeChapter[1]);
@@ -159,17 +159,20 @@ class Bible
 			    $verseFrom = $verses;
 			    $verseTo = $verses;
 			}
-
-			if (!$this->checkBookVerse($bookString, $bookChapter, $verseFrom, $verseTo)) {
+			
+			$realVerses=$this->checkBookVerse($realBookString, $bookChapter, $verseFrom, $verseTo);
+			if (!$realVerses) {
 			    $responseArray["status"] = false;
 			    $responseArray["error"] = "Versiculos invalidos";
 			    $responseArray["chapter"] = $bookChapter;
 			    $responseArray["verseFrom"] = $verseFrom;
 			    $responseArray["verseTo"] = $verseTo;
-			    $responseArray["verse"] = $pre . $verseString;
+			    $responseArray["verse"] = $pre . $verse;
+			    $responseArray["sql"] = $verseTo;
+			    $responseArray["verse"] = $pre . $verse;
 			    return $responseArray;
 			} else {
-			    $responseArray["verse"] = $pre . $verseString;
+			    $responseArray["verse"] = $pre . $verse;
 			    $responseArray["chapter"] = $bookChapter;
 			    $responseArray["verses"] = $verses;
 			    $responseArray["verseFrom"] = $verseFrom;
@@ -228,10 +231,10 @@ class Bible
 	    return false;
 	}
 
-	$verse1 = 0;
-	$verse2 = 0;
+	$verse1 = array();
+	$verse2 = array();
 
-	$sql1 = "SELECT * FROM " . $this->dbprefix . "verses v, " . $this->dbprefix . "books b  WHERE  UPPER(b.name)=UPPER(\"" . $bookString . "\") AND b.idBook=v.idBook AND v.chapter=\"" . $bookChapter . "\" AND v.verse=\"" . $verseFrom . "\"";
+	$sql1 = "SELECT * FROM " . $this->dbprefix . "verses v, " . $this->dbprefix . "books b  WHERE  UPPER(b.name)=UPPER(\"" . $bookString . "\") AND b.idBook=v.idBook AND v.chapter=" . $bookChapter . " AND v.verse=" . $verseFrom ;
 	$rs1 = mysql_query($sql1, $this->db) or die(mysql_error());
 
 	if (!$rs1) {
@@ -239,24 +242,24 @@ class Bible
 	    return false;
 	} else {
 	    while ($row1 = mysql_fetch_assoc($rs1)) {
-		$verse1[] = $row1['text'];
+		$verse1[] = $row1;
 	    }
 
-	    if (count($verse1) == 0) {
+	    if (count($verse1) < 1) {
 		return false;
 	    } else {
-		$sql2 = "SELECT * FROM " . $this->dbprefix . "verses v, " . $this->dbprefix . "books b  WHERE  UPPER(b.name)=UPPER(\"" . $bookString . "\") AND b.idBook=v.idBook AND v.chapter=\"" . $bookChapter . "\" AND v.verse=\"" . $verseTo . "\"";
+		$sql2 = "SELECT * FROM " . $this->dbprefix . "verses v, " . $this->dbprefix . "books b  WHERE  UPPER(b.name)=UPPER(\"" . $bookString . "\") AND b.idBook=v.idBook AND v.chapter=" . $bookChapter . " AND v.verse=" . $verseTo;
 		$rs2 = mysql_query($sql2, $this->db) or die(mysql_error());
-
+		
 		if (!$rs2) {
 		    mail('daniel@aldeacms.com', 'error', 'SQL:' . $sql2 . '      Error:' . $this->db->ErrorMsg());
 		    return false;
 		} else {
 		    while ($row2 = mysql_fetch_assoc($rs2)) {
-			$verse2[] = $row2['text'];
+			$verse2[] = $row2;
 		    }
 
-		    if (count($verse2) == 0) {
+		    if (count($verse2) < 1) {
 			return false;
 		    } else {
 			return true;
